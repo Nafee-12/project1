@@ -1,0 +1,129 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class TicTacToe extends JFrame {
+    private static final int BOARD_SIZE = 9;
+
+    private JButton[] buttons;
+    private int[] board;
+    private boolean xTurn;
+
+    public TicTacToe() {
+        super("TicTacToe Game");
+
+        buttons = new JButton[BOARD_SIZE];
+        board = new int[BOARD_SIZE];
+        xTurn = true;
+
+        JPanel gamePanel = new JPanel();
+        gamePanel.setLayout(new GridLayout(3, 3));
+
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            JButton button = new JButton();
+            button.setPreferredSize(new Dimension(100, 100));
+            button.setFont(new Font("Arial", Font.BOLD, 40));
+            button.addActionListener(new ButtonListener(i));
+            buttons[i] = button;
+            gamePanel.add(button);
+        }
+
+        add(gamePanel);
+
+        setResizable(false);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        pack();
+        setLocationRelativeTo(null);
+        setVisible(true);
+    }
+
+    private void markCell(int index) {
+        if (board[index] == 0) {
+            if (xTurn) {
+                buttons[index].setText("X");
+                board[index] = 1;
+            } else {
+                buttons[index].setText("O");
+                board[index] = -1;
+            }
+            xTurn = !xTurn;
+            checkGameOver();
+        }
+    }
+
+    private void checkGameOver() {
+        if (checkWin(1)) {
+            showGameOverMessage("X wins!");
+        } else if (checkWin(-1)) {
+            showGameOverMessage("O wins!");
+        } else if (isBoardFull()) {
+            showGameOverMessage("It's a draw!");
+        }
+    }
+
+    private boolean checkWin(int player) {
+        // Check rows
+        for (int i = 0; i < 9; i += 3) {
+            if (board[i] == player && board[i + 1] == player && board[i + 2] == player) {
+                return true;
+            }
+        }
+
+        // Check columns
+        for (int i = 0; i < 3; i++) {
+            if (board[i] == player && board[i + 3] == player && board[i + 6] == player) {
+                return true;
+            }
+        }
+
+        // Check diagonals
+        if (board[0] == player && board[4] == player && board[8] == player) {
+            return true;
+        }
+        if (board[2] == player && board[4] == player && board[6] == player) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isBoardFull() {
+        for (int cell : board) {
+            if (cell == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void showGameOverMessage(String message) {
+        JOptionPane.showMessageDialog(this, message, "Game Over", JOptionPane.INFORMATION_MESSAGE);
+        resetGame();
+    }
+
+    private void resetGame() {
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            buttons[i].setText("");
+            board[i] = 0;
+        }
+        xTurn = true;
+    }
+
+    private class ButtonListener implements ActionListener {
+        private int index;
+
+        public ButtonListener(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            markCell(index);
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(TicTacToe::new);
+    }
+}
